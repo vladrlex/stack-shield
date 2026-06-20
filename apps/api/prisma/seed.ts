@@ -1,11 +1,17 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+// Примусово завантажуємо .env файл, який лежить поруч всередині apps/api
+import * as dotenv from 'dotenv';
+dotenv.config({ path: __dirname + '/../.env' });
 
 const prisma = new PrismaClient();
 
 async function main() {
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
+
+  // Тимчасовий лог для діагностики:
+  console.log('🌱 Перевірка .env змінних:', { email, password });
 
   if (!email || !password) {
     console.error('❌ Помилка: ADMIN_EMAIL або ADMIN_PASSWORD не знайдені в .env');
@@ -34,7 +40,7 @@ async function main() {
     },
   });
 
-  console.log(`✅ Дефолтного адміна (${email}) успішно створено!`);
+  console.log(`✅ Дефолтного admin (${email}) успішно створено!`);
 }
 
 main()
