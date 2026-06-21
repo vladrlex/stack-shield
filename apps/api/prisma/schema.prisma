@@ -17,6 +17,7 @@ model User {
   id            String         @id @default(uuid())
   email         String         @unique
   passwordHash  String
+  name          String?        // <-- ДОДАЙ ЦЕЙ РЯДОК
   role          Role           @default(USER)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt

@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common'; // Додали ConflictException
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,31 @@ export class AuthService {
     }
 
     const { passwordHash, ...result } = user;
+    return result;
+  }
+
+  async register(dto: RegisterDto) {
+    const candidate = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (candidate) {
+      throw new ConflictException('Користувач з таким email вже зареєстрований');
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(dto.password, saltRounds);
+
+    const newUser = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        passwordHash: hashedPassword,
+        name: dto.name,
+        role: 'USER',
+      },
+    });
+
+    const { passwordHash, ...result } = newUser;
     return result;
   }
 
